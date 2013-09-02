@@ -7,9 +7,20 @@ import netifaces
 import gdata
 import gdata.spreadsheet.service as gdss
 import RPi.GPIO as GPIO
+import smtplib
 
 GREEN_LED = 24
 RED_LED = 23
+
+WARN_TEMP_HIGH = 50
+WARN_TEMP_LOW = 40
+
+EMAIL_LIST = [
+	'jbrodie@gmail.com',
+	'scott.brodie@mssm.edu',
+	'mgruen@gmail.com',
+	'lakehousepi@gmail.com'
+]
 
 SPREADSHEET_NAME = 'LakeHouseData'
 USERNAME = 'lakehousepi@gmail.com'
@@ -76,8 +87,24 @@ def read_temp():
 #	time.sleep(1)
 
 temp = read_temp()
-
 print(temp)
+
+if temp[1] > WARN_TEMP_HIGH or temp[1] < WARN_TEMP_LOW:
+	fromaddr = USERNAME
+	toaddrs = EMAIL_LIST
+	if temp[1] > WARN_TEMP_HIGH:
+		msg = 'Subject: The temperature is too darn high!\n\nIt is %d degrees in here!' % temp[1]
+	else:
+		msg = 'Subject: The temperature is too darn low!\n\nIt is %d degrees in here!' % temp[1]
+	username = USERNAME
+	password = PASSWORD
+	
+	server = smtplib.SMTP('smtp.gmail.com:587')
+	server.starttls()
+	server.login(username, password)
+	server.sendmail(fromaddr, toaddrs, msg)
+	server.quit()
+
 # Prepare the dictionary to write
 dict = {}
 dict['date'] = time.strftime('%m/%d/%Y')
