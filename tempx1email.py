@@ -16,13 +16,12 @@ WARN_TEMP_HIGH = 85
 WARN_TEMP_LOW = 40
 
 EMAIL_LIST = [
-	'jbrodie@gmail.com',
+#	'jbrodie@gmail.com',
 	'scott.brodie@mssm.edu',
-	'mgruen+lakehouse@gmail.com',
-	'lakehousepi@gmail.com'
+	'ebrodie27@gmail.com',
+#	'trooper1915@gmail.com'
 ]
 
-SPREADSHEET_NAME = 'LakeHouseData'
 USERNAME = 'lakehousepi@gmail.com'
 PASSWORD = 'lakehousepi!'
 
@@ -45,16 +44,6 @@ GPIO.output(GREEN_LED, True)
 global_ip = get_global_ip()
 local_ip = netifaces.ifaddresses("wlan0").get(netifaces.AF_INET)[0]['addr']
 
-spr_client = gdss.SpreadsheetsService()
-spr_client.email = USERNAME
-spr_client.password = PASSWORD
-spr_client.source = 'Example Spreadsheet Writing Application'
-spr_client.ProgrammaticLogin()
-
-gd_client = gdss.SpreadsheetsService()
-gd_client.email = USERNAME
-gd_client.password = PASSWORD
-gd_client.ProgrammaticLogin()
 
 
 os.system('modprobe w1-gpio')
@@ -89,21 +78,21 @@ def read_temp():
 temp = read_temp()
 print(temp)
 
-if temp[1] > WARN_TEMP_HIGH or temp[1] < WARN_TEMP_LOW:
+if True:
 	fromaddr = USERNAME
 	toaddrs = EMAIL_LIST
-	if temp[1] > WARN_TEMP_HIGH:
-		msg = 'Subject: The temperature is too darn high!\n\nIt is %d degrees in here!' % temp[1]
-	else:
-		msg = 'Subject: The temperature is too darn low!\n\nIt is %d degrees in here!' % temp[1]
-	username = USERNAME
-	password = PASSWORD
+#	if temp[1] > WARN_TEMP_HIGH:
+#		msg = 'Subject: The temperature is too darn high!\n\nIt is %d degrees in here!' % temp[1]
+#	else:
+#		msg = 'Subject: The temperature is too darn low!\n\nIt is %d degrees in here!' % temp[1]
+uername = USERNAME
+password = PASSWORD
 	
-	server = smtplib.SMTP('smtp.gmail.com:587')
-	server.starttls()
-	server.login(username, password)
-	server.sendmail(fromaddr, toaddrs, msg)
-	server.quit()
+#	server = smtplib.SMTP('smtp.gmail.com:587')
+#	server.starttls()
+#	server.login(username, password)
+#	server.sendmail(fromaddr, toaddrs, msg)
+#	server.quit()
 
 # Prepare the dictionary to write
 dict = {}
@@ -116,13 +105,34 @@ dict['globalip'] = global_ip
 
 print dict
 
-entry = spr_client.InsertRow(dict, SPREADSHEETKEY, WORKSHEETID)
-if isinstance(entry, gdata.spreadsheet.SpreadsheetsList):
-	print "Insert row succeeded."
-else:
-	print "Insert row failed."
-	GPIO.output(RED_LED, True)
-	time.sleep(5)
-	GPIO.output(RED_LED, False)
+jsonstring = json.dumps(dict)
+
+# tempstring =time.strftime("%Y-%m-%d %H:%M:%S", gmtime())+ ' ' + str(temp[0]) +' '+str(temp[1])
+newstr = jsonstring
+
+fromaddr = USERNAME
+toaddrs = EMAIL_LIST
+username = USERNAME
+password = PASSWORD
+
+emailsubj = 'Subject: Lakehouse temperature for %s' % dict['date']
+emailbody = 'Temperature recorded at %s UTC, temperature is %s' % (dict['time'], dict['tempfahrenheit'],)
+emailmsg = emailsubj + '\n\n' + emailbody
+
+server = smtplib.SMTP('smtp.gmail.com:587')
+server.starttls()
+server.login(username, password)
+server.sendmail(fromaddr, toaddrs, emailmsg)
+server.quit()
+
+
+#entry = spr_client.InsertRow(dict, SPREADSHEETKEY, WORKSHEETID)
+#if isinstance(entry, gdata.spreadsheet.SpreadsheetsList):
+#	print "Insert row succeeded."
+#else:
+#	print "Insert row failed."
+#	GPIO.output(RED_LED, True)
+#	time.sleep(5)
+#	GPIO.output(RED_LED, False)
 
 GPIO.output(GREEN_LED, False)
