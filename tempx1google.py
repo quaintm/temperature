@@ -18,7 +18,7 @@ WARN_TEMP_LOW = 40
 EMAIL_LIST = [
 	'jbrodie@gmail.com',
 	'scott.brodie@mssm.edu',
-	'mgruen@gmail.com',
+	'mgruen+lakehouse@gmail.com',
 	'lakehousepi@gmail.com'
 ]
 
