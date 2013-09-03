@@ -19,6 +19,7 @@ EMAIL_LIST = [
 	'jbrodie@gmail.com',
 	'scott.brodie@mssm.edu',
 	'mgruen+lakehouse@gmail.com',
+	'mquaintance+lakehouse@gmail.com',
 	'lakehousepi@gmail.com'
 ]
 
